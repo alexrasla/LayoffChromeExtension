@@ -4,19 +4,29 @@
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function getLayoffFyiData() {
-  _axios.default.get("http://127.0.0.1:3000/layoffs-rsshub").then(({
-    data
-  }) => {
-    let res = JSON.parse(data);
-    for (let i = 0; i < res.title.length; i++) {
-      if (res.title[i] == 'Atlassian Layoffs Happening!') {
-        console.log(res['title'][i], res['pubDate'][i], res['link'][i]);
-        document.getElementById("showresulthere").innerHTML = res.title[i];
+  _axios.default.get("http://127.0.0.1:3000/layoffs-fyi").then(res => {
+    let data = res.data;
+    for (const element of data) {
+      if (element.title == 'Atlassian Layoffs Happening!') {
+        console.log(element.title, element.pubDate, element.link);
+        document.getElementById("layoff-fyi").innerHTML = element.title;
+      }
+    }
+  });
+}
+function getUSWarnData() {
+  _axios.default.get("http://127.0.0.1:3000/us-warn").then(res => {
+    let data = res.data;
+    for (const element of data) {
+      if (element.company == 'TALASCEND SL, LLC.') {
+        console.log(element.company, element.number_workers, element.effective_date);
+        document.getElementById("us-warn").innerHTML = element.company + " laid off " + element.number_workers + " on " + element.effective_date;
       }
     }
   });
 }
 getLayoffFyiData();
+getUSWarnData();
 
 },{"axios":2}],2:[function(require,module,exports){
 "use strict";
