@@ -77,7 +77,6 @@ export async function listUSWarn(auth) {
         range: 'Sheet1',
     });
     const rows = res.data.values;
-    console.log(res.data)
     if (!rows || rows.length === 0) {
         console.log('No data found.');
         return;

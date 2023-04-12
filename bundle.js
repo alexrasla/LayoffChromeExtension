@@ -4,10 +4,10 @@
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function getLayoffFyiData() {
-  _axios.default.get("http://127.0.0.1:3000/layoffs-fyi").then(res => {
+  _axios.default.get("http://127.0.0.1:3000/check-layoffs-fyi").then(res => {
     let data = res.data;
     for (const element of data) {
-      if (element.title == 'Atlassian Layoffs Happening!') {
+      if (element.title == 'Workit Health Layoffs Happening!') {
         console.log(element.title, element.pubDate, element.link);
         document.getElementById("layoff-fyi").innerHTML = element.title;
       }
@@ -15,7 +15,7 @@ function getLayoffFyiData() {
   });
 }
 function getUSWarnData() {
-  _axios.default.get("http://127.0.0.1:3000/us-warn").then(res => {
+  _axios.default.get("http://127.0.0.1:3000/us-warn2").then(res => {
     let data = res.data;
     for (const element of data) {
       if (element.company == 'TALASCEND SL, LLC.') {
@@ -25,8 +25,30 @@ function getUSWarnData() {
     }
   });
 }
+function getCrunchbaseData(uri) {
+  _axios.default.post('http://127.0.0.1:3000/crunchbase', {
+    data: {
+      uri: uri
+    }
+  }).then(res => {
+    console.log(res);
+  });
+}
+
+// chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+//     let url = tabs[0].url;
+//     let permalink = url.split('/')
+//     let uri = permalink[permalink.length - 2]
+
+//     document.getElementById("current-url").innerHTML = uri
+
+//     getCrunchbaseData(uri)
+
+// });
+
+// crunchbaseData()
 getLayoffFyiData();
-getUSWarnData();
+// getUSWarnData()
 
 },{"axios":2}],2:[function(require,module,exports){
 "use strict";

@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 function getLayoffFyiData() {
-    axios.get("http://127.0.0.1:3000/layoffs-fyi").then((res) => {
+    axios.get("http://127.0.0.1:3000/check-layoffs-fyi").then((res) => {
         let data = res.data
         for (const element of data) {
-            if (element.title == 'Atlassian Layoffs Happening!') {
+            if (element.title == 'Workit Health Layoffs Happening!') {
                 console.log(
                     element.title,
                     element.pubDate,
@@ -17,7 +17,7 @@ function getLayoffFyiData() {
 }
 
 function getUSWarnData() {
-    axios.get("http://127.0.0.1:3000/us-warn").then((res) => {
+    axios.get("http://127.0.0.1:3000/us-warn2").then((res) => {
         let data = res.data
         for (const element of data) {
             if (element.company == 'TALASCEND SL, LLC.') {
@@ -32,5 +32,27 @@ function getUSWarnData() {
     })
 }
 
+function getCrunchbaseData(uri) {
+    axios.post('http://127.0.0.1:3000/crunchbase', {
+        data: {
+            uri: uri
+        }
+    }).then((res) => {
+        console.log(res)
+    })
+}
+
+// chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+//     let url = tabs[0].url;
+//     let permalink = url.split('/')
+//     let uri = permalink[permalink.length - 2]
+
+//     document.getElementById("current-url").innerHTML = uri
+
+//     getCrunchbaseData(uri)
+
+// });
+
+// crunchbaseData()
 getLayoffFyiData()
-getUSWarnData()
+// getUSWarnData()
