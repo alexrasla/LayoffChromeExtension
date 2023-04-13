@@ -4,10 +4,19 @@
 var _axios = _interopRequireDefault(require("axios"));
 var _layoffFyi = require("./layoff-fyi.js");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+const NUM_ARTICLES = 3;
 async function getCompanyFromCrunchbase(uri) {
   let res = await _axios.default.post('http://127.0.0.1:3000/check-crunchbase', {
     data: {
       uri: uri
+    }
+  });
+  return res.data;
+}
+async function getArticles(companyName) {
+  let res = await _axios.default.post('http://127.0.0.1:3000/get-articles', {
+    data: {
+      companyName: companyName
     }
   });
   return res.data;
@@ -26,6 +35,11 @@ chrome.tabs.query({
     if (res) {
       document.getElementById("date").innerHTML = res["Date"];
       document.getElementById("source").innerHTML = res["Source"];
+    }
+  });
+  getArticles(companyName).then(res => {
+    for (let i = 0; i < NUM_ARTICLES; i++) {
+      document.getElementById(`article${i}`).innerHTML = res[i].description;
     }
   });
 });
