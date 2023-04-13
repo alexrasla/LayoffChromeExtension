@@ -1,15 +1,36 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
+var _axios = _interopRequireDefault(require("axios"));
 var _layoffFyi = require("./layoff-fyi.js");
-(0, _layoffFyi.checkLayoffFyiData)('Leafly').then(res => {
-  console.log(res);
-  if (res) {
-    document.getElementById("layoff-fyi").innerHTML = JSON.stringify(res, null, 2);
-  }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+async function getCompanyFromCrunchbase(uri) {
+  let res = await _axios.default.post('http://127.0.0.1:3000/check-crunchbase', {
+    data: {
+      uri: uri
+    }
+  });
+  return res.data;
+}
+chrome.tabs.query({
+  active: true,
+  lastFocusedWindow: true
+}, async tabs => {
+  let url = tabs[0].url;
+  let permalink = url.split('/');
+  let uri = permalink[permalink.length - 2];
+  let companyDetails = await getCompanyFromCrunchbase(uri);
+  let companyName = companyDetails.properties.identifier.value;
+  document.getElementById("comapanyName").innerHTML = JSON.stringify(companyName);
+  (0, _layoffFyi.checkLayoffFyiData)(companyName).then(res => {
+    if (res) {
+      document.getElementById("date").innerHTML = res["Date"];
+      document.getElementById("source").innerHTML = res["Source"];
+    }
+  });
 });
 
-},{"./layoff-fyi.js":2}],2:[function(require,module,exports){
+},{"./layoff-fyi.js":2,"axios":3}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5352,4 +5373,4 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}]},{},[1,2]);
+},{}]},{},[1]);
