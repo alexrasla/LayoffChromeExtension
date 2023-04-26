@@ -2,7 +2,7 @@
 "use strict";
 
 var _axios = _interopRequireDefault(require("axios"));
-var _layoffFyi = require("./layoff-fyi.js");
+var _data = require("./data.js");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 const NUM_ARTICLES = 3;
 async function getCompanyFromCrunchbase(uri) {
@@ -14,7 +14,7 @@ async function getCompanyFromCrunchbase(uri) {
   return res.data;
 }
 async function getArticles(companyName) {
-  let res = await _axios.default.post('http://127.0.0.1:3000/get-articles', {
+  let res = await _axios.default.post('http://127.0.0.1:3000/articles', {
     data: {
       companyName: companyName
     }
@@ -31,10 +31,11 @@ chrome.tabs.query({
   let companyDetails = await getCompanyFromCrunchbase(uri);
   let companyName = companyDetails.properties.identifier.value;
   document.getElementById("comapanyName").innerHTML = JSON.stringify(companyName);
-  (0, _layoffFyi.checkLayoffFyiData)(companyName).then(res => {
+  (0, _data.checkHadLayoffs)(companyName).then(res => {
     if (res) {
-      document.getElementById("date").innerHTML = res["Date"];
-      document.getElementById("source").innerHTML = res["Source"];
+      document.getElementById("date").innerHTML = res.Date;
+      document.getElementById("location").innerHTML = res.Location;
+      document.getElementById("num_laid_off").innerHTML = res.NumberLaidOff;
     }
   });
   getArticles(companyName).then(res => {
@@ -44,31 +45,58 @@ chrome.tabs.query({
   });
 });
 
-},{"./layoff-fyi.js":2,"axios":3}],2:[function(require,module,exports){
+},{"./data.js":2,"axios":3}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.checkLayoffFyiData = checkLayoffFyiData;
-var _axios = _interopRequireDefault(require("axios"));
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-async function getLayoffFyiData() {
-  let res = await _axios.default.get("http://127.0.0.1:3000/layoffs-fyi");
-  let data = res.data;
-  return data;
-}
-async function checkLayoffFyiData(company) {
-  let data = await getLayoffFyiData();
+exports.checkHadLayoffs = checkHadLayoffs;
+const fs = require("fs");
+async function checkHadLayoffs(companyName) {
+  const data = JSON.parse(await fs.promises.readFile('./data/transformedData.json'));
   for (const element of data) {
-    if (element.Company == company) {
+    console.log(element);
+    if (element.Company == companyName) {
       return element;
     }
   }
   return null;
 }
+function transformData(readData, writeFile, keyMapping) {
+  const writeData = [];
+  for (const element of readData) {
+    let obj = new Object();
+    obj.Company = element[keyMapping.Company].split('-')[0].split(' (')[0].split(',')[0].split('*')[0].split(/ LLC/i)[0].split(/ INC/i)[0];
+    obj.Date = element[keyMapping.Date];
+    obj.NumberLaidOff = element[keyMapping.NumberLaidOff];
+    obj.Location = element[keyMapping.Location];
+    writeData.push(obj);
+  }
+  fs.writeFile(writeFile, JSON.stringify(writeData), err => {
+    if (err) {
+      console.log(err);
+    }
+  });
+}
+async function updateData() {
+  const usWarnData = JSON.parse(await fs.promises.readFile('./data/us-warn.json'));
+  const layoffFyiData = JSON.parse(await fs.promises.readFile('./data/layoff-fyi.json'));
+  transformData(usWarnData, './data/transformedData.json', {
+    Company: 'Company Name',
+    Date: 'Layoff Date',
+    NumberLaidOff: '# Laid off',
+    Location: 'State'
+  });
+  transformData(layoffFyiData, './data/transformedData.json', {
+    Company: 'Company',
+    Date: 'Date',
+    NumberLaidOff: '# Laid Off',
+    Location: 'Country'
+  });
+}
 
-},{"axios":3}],3:[function(require,module,exports){
+},{"fs":47}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2467,7 +2495,7 @@ var _default = toFormData;
 exports.default = _default;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../core/AxiosError.js":11,"../platform/node/classes/FormData.js":32,"../utils.js":45,"buffer":47}],38:[function(require,module,exports){
+},{"../core/AxiosError.js":11,"../platform/node/classes/FormData.js":32,"../utils.js":45,"buffer":48}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3520,6 +3548,8 @@ function fromByteArray (uint8) {
 }
 
 },{}],47:[function(require,module,exports){
+
+},{}],48:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -5300,7 +5330,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":46,"buffer":47,"ieee754":48}],48:[function(require,module,exports){
+},{"base64-js":46,"buffer":48,"ieee754":49}],49:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { checkLayoffFyiData } from './layoff-fyi.js'
+import { checkHadLayoffs } from './data.js'
 
 const NUM_ARTICLES = 3
 
@@ -13,7 +13,7 @@ async function getCompanyFromCrunchbase(uri) {
 }
 
 async function getArticles(companyName) {
-    let res = await axios.post('http://127.0.0.1:3000/get-articles', {
+    let res = await axios.post('http://127.0.0.1:3000/articles', {
         data: {
             companyName: companyName,
         }
@@ -32,10 +32,11 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, async (tabs) => {
 
     document.getElementById("comapanyName").innerHTML = JSON.stringify(companyName)
 
-    checkLayoffFyiData(companyName).then((res) => {
+    checkHadLayoffs(companyName).then((res) => {
         if (res) {
-            document.getElementById("date").innerHTML = res["Date"]
-            document.getElementById("source").innerHTML = res["Source"]
+            document.getElementById("date").innerHTML = res.Date
+            document.getElementById("location").innerHTML = res.Location
+            document.getElementById("num_laid_off").innerHTML = res.NumberLaidOff
         }
     })
 
