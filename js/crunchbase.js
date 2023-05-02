@@ -15,8 +15,7 @@ export async function checkCrunchbase(uri) {
     })
 
     // TODO: do check against linkedin URL... 
-    // TODO: if error returned from using ^, do autocomplete
-
-    let data = res.data
-    return data
+    // TODO: if error returned from using ^, do autocomplete and use Linkedin title
+    if (res) return res.data
+    return null
 }
