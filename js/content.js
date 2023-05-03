@@ -1,7 +1,30 @@
 import axios from 'axios'
-import { checkHadLayoffs } from './data.js'
+// import { checkHadLayoffs } from './data.js'
 
 const NUM_ARTICLES = 3
+
+async function getData(uri) {
+    let res = await axios.get('http://127.0.0.1:3000/data', {
+        data: {
+            uri: uri,
+        }
+    })
+    return res.data
+}
+
+async function checkHadLayoffs(companyName) {
+    const data = await getData()
+
+    console.log('data', data)
+
+    for (const element of data) {
+        console.log(element)
+        if (element.Company == companyName) {
+            return element
+        }
+    }
+    return null
+}
 
 async function getCompanyFromCrunchbase(uri) {
     let res = await axios.post('http://127.0.0.1:3000/check-crunchbase', {
