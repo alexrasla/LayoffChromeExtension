@@ -11,8 +11,13 @@ const app = express()
 app.use(cors())
 app.use(express.json());
 
+app.get('/data', async function (req, res) {
+    let data = JSON.parse(await fs.promises.readFile('./data/transformedData.json'))
+    res.send(data)
+})
+
 app.post('/check-crunchbase', async function (req, res) {
-    let data = await checkCrunchbase(req.body.data.uri) //add uri
+    let data = await checkCrunchbase(req.body.data.companyName) //add uri
     res.send(data)
 })
 

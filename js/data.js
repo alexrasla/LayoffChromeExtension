@@ -1,17 +1,5 @@
 import fs from 'fs'
 
-export async function checkHadLayoffs(companyName) {
-    const data = JSON.parse(await fs.promises.readFile('./data/transformedData.json'))
-
-    for (const element of data) {
-        console.log(element)
-        if (element.Company == companyName) {
-            return element
-        }
-    }
-    return null
-}
-
 function transformData(readData, writeFile, keyMapping) {
     const writeData = []
 
