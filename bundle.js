@@ -3,8 +3,6 @@
 
 var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-// import { checkHadLayoffs } from './data.js'
-
 const NUM_ARTICLES = 3;
 async function getData(uri) {
   let res = await _axios.default.get('http://127.0.0.1:3000/data', {
@@ -16,19 +14,17 @@ async function getData(uri) {
 }
 async function checkHadLayoffs(companyName) {
   const data = await getData();
-  console.log('data', data);
   for (const element of data) {
-    console.log(element);
     if (element.Company == companyName) {
       return element;
     }
   }
   return null;
 }
-async function getCompanyFromCrunchbase(uri) {
+async function getCompanyFromCrunchbase(companyName) {
   let res = await _axios.default.post('http://127.0.0.1:3000/check-crunchbase', {
     data: {
-      uri: uri
+      companyName: companyName
     }
   });
   return res.data;
@@ -45,12 +41,10 @@ chrome.tabs.query({
   active: true,
   lastFocusedWindow: true
 }, async tabs => {
-  let url = tabs[0].url;
-  let permalink = url.split('/');
-  let uri = permalink[permalink.length - 2];
-  let companyDetails = await getCompanyFromCrunchbase(uri);
-  let companyName = companyDetails.properties.identifier.value;
-  document.getElementById("comapanyName").innerHTML = JSON.stringify(companyName);
+  let companyName = tabs[0].title.split(' | ')[0].split(':')[0].split(') ')[1];
+  let companyDetails = await getCompanyFromCrunchbase(companyName);
+  document.getElementById("companyName").innerHTML = companyName;
+  document.getElementById("description").innerHTML = companyDetails.cards.fields.short_description;
   checkHadLayoffs(companyName).then(res => {
     if (res) {
       document.getElementById("date").innerHTML = res.Date;

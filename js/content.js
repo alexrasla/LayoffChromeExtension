@@ -1,5 +1,4 @@
 import axios from 'axios'
-// import { checkHadLayoffs } from './data.js'
 
 const NUM_ARTICLES = 3
 
@@ -15,10 +14,7 @@ async function getData(uri) {
 async function checkHadLayoffs(companyName) {
     const data = await getData()
 
-    console.log('data', data)
-
     for (const element of data) {
-        console.log(element)
         if (element.Company == companyName) {
             return element
         }
@@ -26,10 +22,10 @@ async function checkHadLayoffs(companyName) {
     return null
 }
 
-async function getCompanyFromCrunchbase(uri) {
+async function getCompanyFromCrunchbase(companyName) {
     let res = await axios.post('http://127.0.0.1:3000/check-crunchbase', {
         data: {
-            uri: uri,
+            companyName: companyName,
         }
     })
     return res.data
@@ -46,14 +42,14 @@ async function getArticles(companyName) {
 }
 
 chrome.tabs.query({ active: true, lastFocusedWindow: true }, async (tabs) => {
-    let url = tabs[0].url;
-    let permalink = url.split('/')
-    let uri = permalink[permalink.length - 2]
+    let companyName = tabs[0].title.split(' | ')[0]
+        .split(':')[0]
+        .split(') ')[1]
 
-    let companyDetails = await getCompanyFromCrunchbase(uri)
-    let companyName = companyDetails.properties.identifier.value
+    let companyDetails = await getCompanyFromCrunchbase(companyName)
 
-    document.getElementById("comapanyName").innerHTML = JSON.stringify(companyName)
+    document.getElementById("companyName").innerHTML = companyName
+    document.getElementById("description").innerHTML = companyDetails.cards.fields.short_description
 
     checkHadLayoffs(companyName).then((res) => {
         if (res) {

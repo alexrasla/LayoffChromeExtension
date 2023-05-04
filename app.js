@@ -17,7 +17,7 @@ app.get('/data', async function (req, res) {
 })
 
 app.post('/check-crunchbase', async function (req, res) {
-    let data = await checkCrunchbase(req.body.data.uri) //add uri
+    let data = await checkCrunchbase(req.body.data.companyName) //add uri
     res.send(data)
 })
 
