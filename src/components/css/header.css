@@ -1,0 +1,14 @@
+.flex {
+    display: flex;
+}
+
+.margin-around {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.justify-center {
+    justify-content: center;
+}

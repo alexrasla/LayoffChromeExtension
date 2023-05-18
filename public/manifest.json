@@ -4,8 +4,7 @@
     "description": "See if a company has recently had layoffs",
     "version": "1.0",
     "action": {
-        "default_popup": "main.html",
-        "default_icon": "hello_extensions.png"
+        "default_popup": "index.html"
     },
     "permissions": [
         "tabs"

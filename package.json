@@ -1,22 +1,58 @@
 {
+  "name": "layoff-chrome-extension",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "browserify js/content.js -p esmify > bundle.js",
-    "start": "nodemon app.js",
+    "start": "nodemon server/app.js",
+    "build": "browserify server/js/content.js -p esmify > bundle.js",
+    "start:react": "react-scripts start",
+    "build:react": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "watch": "npx watchify js/content.js -p esmify -o bundle.js"
   },
-  "type": "module",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.3.5",
     "body-parser": "^1.20.2",
+    "bootstrap": "^5.2.3",
     "browserify": "^17.0.0",
     "cors": "^2.8.5",
     "esmify": "^2.1.1",
     "express": "^4.18.2",
     "nodemon": "^2.0.22",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.7.4",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.11.1",
+    "react-scripts": "5.0.1",
+    "reactstrap": "^9.1.10",
+    "web-vitals": "^2.1.4",
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
     "eslint": "^8.37.0",
+    "tailwindcss": "^3.3.2",
     "watchify": "^4.0.0"
   }
 }

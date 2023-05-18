@@ -1,7 +1,7 @@
-import axios from 'axios'
-import { parseString } from "xml2js";
+const axios = require('axios');
+const { parseString } = require("xml2js");
 
-export async function checkGoogleNews(comapanyName) {
+async function checkGoogleNews(comapanyName) {
 
     let res = await axios.get(`https://news.google.com/rss/search`, {
         params: {
@@ -21,3 +21,5 @@ export async function checkGoogleNews(comapanyName) {
 
     return result
 }
+
+module.exports = checkGoogleNews;

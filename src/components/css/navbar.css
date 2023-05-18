@@ -1,0 +1,35 @@
+.flex {
+    display: flex;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.fill-parent-width {
+    width: 100%;
+}
+
+.text-color {
+    color: #004aab;
+}
+
+/* .btn {
+    border: 0px;
+    border-color: white;
+    border-radius: 0;
+} */
+
+.btn:hover {
+    border: 0px;
+    border-top: 3px solid;
+    border-color: #004aab;
+    border-radius: 0;
+}
+
+.btn:active {
+    border: 0px;
+    border-top: 3px solid;
+    border-color: #004aab;
+    border-radius: 0;
+}

@@ -1,6 +1,67 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
+var _axios = _interopRequireDefault(require("axios"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+const NUM_ARTICLES = 3;
+async function getData(uri) {
+  let res = await _axios.default.get('http://127.0.0.1:3000/data', {
+    data: {
+      uri: uri
+    }
+  });
+  return res.data;
+}
+async function checkHadLayoffs(companyName) {
+  const data = await getData();
+  for (const element of data) {
+    if (element.Company == companyName) {
+      return element;
+    }
+  }
+  return null;
+}
+async function getCompanyFromCrunchbase(companyName) {
+  let res = await _axios.default.post('http://127.0.0.1:3000/check-crunchbase', {
+    data: {
+      companyName: companyName
+    }
+  });
+  return res.data;
+}
+async function getArticles(companyName) {
+  let res = await _axios.default.post('http://127.0.0.1:3000/articles', {
+    data: {
+      companyName: companyName
+    }
+  });
+  return res.data;
+}
+chrome.tabs.query({
+  active: true,
+  lastFocusedWindow: true
+}, async tabs => {
+  let companyName = tabs[0].title.split(' | ')[0].split(':')[0].split(') ')[1];
+  let companyDetails = await getCompanyFromCrunchbase(companyName);
+  document.getElementById("companyName").innerHTML = companyName;
+  document.getElementById("description").innerHTML = companyDetails.cards.fields.short_description;
+  checkHadLayoffs(companyName).then(res => {
+    if (res) {
+      document.getElementById("date").innerHTML = res.Date;
+      document.getElementById("location").innerHTML = res.Location;
+      document.getElementById("num_laid_off").innerHTML = res.NumberLaidOff;
+    }
+  });
+  getArticles(companyName).then(res => {
+    for (let i = 0; i < NUM_ARTICLES; i++) {
+      document.getElementById(`article${i}`).innerHTML = res[i].description;
+    }
+  });
+});
+
+},{"axios":2}],2:[function(require,module,exports){
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -50,7 +111,7 @@ exports.CanceledError = CanceledError;
 exports.AxiosError = AxiosError;
 exports.Axios = Axios;
 
-},{"./lib/axios.js":4}],2:[function(require,module,exports){
+},{"./lib/axios.js":5}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -109,7 +170,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../core/AxiosError.js":9,"../utils.js":43,"./http.js":30,"./xhr.js":3}],3:[function(require,module,exports){
+},{"../core/AxiosError.js":10,"../utils.js":44,"./http.js":31,"./xhr.js":4}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -336,7 +397,7 @@ var _default = isXHRAdapterSupported && function (config) {
 };
 exports.default = _default;
 
-},{"../cancel/CanceledError.js":6,"../core/AxiosError.js":9,"../core/AxiosHeaders.js":10,"../core/buildFullPath.js":12,"../defaults/transitional.js":18,"../helpers/parseProtocol.js":32,"../helpers/speedometer.js":33,"../platform/index.js":42,"./../core/settle.js":15,"./../helpers/buildURL.js":23,"./../helpers/cookies.js":25,"./../helpers/isURLSameOrigin.js":29,"./../utils.js":43}],4:[function(require,module,exports){
+},{"../cancel/CanceledError.js":7,"../core/AxiosError.js":10,"../core/AxiosHeaders.js":11,"../core/buildFullPath.js":13,"../defaults/transitional.js":19,"../helpers/parseProtocol.js":33,"../helpers/speedometer.js":34,"../platform/index.js":43,"./../core/settle.js":16,"./../helpers/buildURL.js":24,"./../helpers/cookies.js":26,"./../helpers/isURLSameOrigin.js":30,"./../utils.js":44}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -427,7 +488,7 @@ axios.default = axios;
 var _default = axios;
 exports.default = _default;
 
-},{"./cancel/CancelToken.js":5,"./cancel/CanceledError.js":6,"./cancel/isCancel.js":7,"./core/Axios.js":8,"./core/AxiosError.js":9,"./core/AxiosHeaders.js":10,"./core/mergeConfig.js":14,"./defaults/index.js":17,"./env/data.js":19,"./helpers/HttpStatusCode.js":21,"./helpers/bind.js":22,"./helpers/formDataToJSON.js":26,"./helpers/isAxiosError.js":28,"./helpers/spread.js":34,"./helpers/toFormData.js":35,"./utils.js":43}],5:[function(require,module,exports){
+},{"./cancel/CancelToken.js":6,"./cancel/CanceledError.js":7,"./cancel/isCancel.js":8,"./core/Axios.js":9,"./core/AxiosError.js":10,"./core/AxiosHeaders.js":11,"./core/mergeConfig.js":15,"./defaults/index.js":18,"./env/data.js":20,"./helpers/HttpStatusCode.js":22,"./helpers/bind.js":23,"./helpers/formDataToJSON.js":27,"./helpers/isAxiosError.js":29,"./helpers/spread.js":35,"./helpers/toFormData.js":36,"./utils.js":44}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -544,7 +605,7 @@ class CancelToken {
 var _default = CancelToken;
 exports.default = _default;
 
-},{"./CanceledError.js":6}],6:[function(require,module,exports){
+},{"./CanceledError.js":7}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -574,7 +635,7 @@ _utils.default.inherits(CanceledError, _AxiosError.default, {
 var _default = CanceledError;
 exports.default = _default;
 
-},{"../core/AxiosError.js":9,"../utils.js":43}],7:[function(require,module,exports){
+},{"../core/AxiosError.js":10,"../utils.js":44}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -585,7 +646,7 @@ function isCancel(value) {
   return !!(value && value.__CANCEL__);
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -765,7 +826,7 @@ _utils.default.forEach(['post', 'put', 'patch'], function forEachMethodWithData(
 var _default = Axios;
 exports.default = _default;
 
-},{"../helpers/buildURL.js":23,"../helpers/validator.js":37,"./../utils.js":43,"./AxiosHeaders.js":10,"./InterceptorManager.js":11,"./buildFullPath.js":12,"./dispatchRequest.js":13,"./mergeConfig.js":14}],9:[function(require,module,exports){
+},{"../helpers/buildURL.js":24,"../helpers/validator.js":38,"./../utils.js":44,"./AxiosHeaders.js":11,"./InterceptorManager.js":12,"./buildFullPath.js":13,"./dispatchRequest.js":14,"./mergeConfig.js":15}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -851,7 +912,7 @@ AxiosError.from = (error, code, config, request, response, customProps) => {
 var _default = AxiosError;
 exports.default = _default;
 
-},{"../utils.js":43}],10:[function(require,module,exports){
+},{"../utils.js":44}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1070,7 +1131,7 @@ _utils.default.freezeMethods(AxiosHeaders);
 var _default = AxiosHeaders;
 exports.default = _default;
 
-},{"../helpers/parseHeaders.js":31,"../utils.js":43}],11:[function(require,module,exports){
+},{"../helpers/parseHeaders.js":32,"../utils.js":44}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1147,7 +1208,7 @@ class InterceptorManager {
 var _default = InterceptorManager;
 exports.default = _default;
 
-},{"./../utils.js":43}],12:[function(require,module,exports){
+},{"./../utils.js":44}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1174,7 +1235,7 @@ function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 }
 
-},{"../helpers/combineURLs.js":24,"../helpers/isAbsoluteURL.js":27}],13:[function(require,module,exports){
+},{"../helpers/combineURLs.js":25,"../helpers/isAbsoluteURL.js":28}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1242,7 +1303,7 @@ function dispatchRequest(config) {
   });
 }
 
-},{"../adapters/adapters.js":2,"../cancel/CanceledError.js":6,"../cancel/isCancel.js":7,"../core/AxiosHeaders.js":10,"../defaults/index.js":17,"./transformData.js":16}],14:[function(require,module,exports){
+},{"../adapters/adapters.js":3,"../cancel/CanceledError.js":7,"../cancel/isCancel.js":8,"../core/AxiosHeaders.js":11,"../defaults/index.js":18,"./transformData.js":17}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1351,7 +1412,7 @@ function mergeConfig(config1, config2) {
   return config;
 }
 
-},{"../utils.js":43,"./AxiosHeaders.js":10}],15:[function(require,module,exports){
+},{"../utils.js":44,"./AxiosHeaders.js":11}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1378,7 +1439,7 @@ function settle(resolve, reject, response) {
   }
 }
 
-},{"./AxiosError.js":9}],16:[function(require,module,exports){
+},{"./AxiosError.js":10}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1409,7 +1470,7 @@ function transformData(fns, response) {
   return data;
 }
 
-},{"../core/AxiosHeaders.js":10,"../defaults/index.js":17,"./../utils.js":43}],17:[function(require,module,exports){
+},{"../core/AxiosHeaders.js":11,"../defaults/index.js":18,"./../utils.js":44}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1547,7 +1608,7 @@ _utils.default.forEach(['post', 'put', 'patch'], function forEachMethodWithData(
 var _default = defaults;
 exports.default = _default;
 
-},{"../core/AxiosError.js":9,"../helpers/formDataToJSON.js":26,"../helpers/toFormData.js":35,"../helpers/toURLEncodedForm.js":36,"../platform/index.js":42,"../utils.js":43,"./transitional.js":18}],18:[function(require,module,exports){
+},{"../core/AxiosError.js":10,"../helpers/formDataToJSON.js":27,"../helpers/toFormData.js":36,"../helpers/toURLEncodedForm.js":37,"../platform/index.js":43,"../utils.js":44,"./transitional.js":19}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1561,7 +1622,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1571,7 +1632,7 @@ exports.VERSION = void 0;
 const VERSION = "1.3.5";
 exports.VERSION = VERSION;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1630,7 +1691,7 @@ prototype.toString = function toString(encoder) {
 var _default = AxiosURLSearchParams;
 exports.default = _default;
 
-},{"./toFormData.js":35}],21:[function(require,module,exports){
+},{"./toFormData.js":36}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1708,7 +1769,7 @@ Object.entries(HttpStatusCode).forEach(([key, value]) => {
 var _default = HttpStatusCode;
 exports.default = _default;
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1721,7 +1782,7 @@ function bind(fn, thisArg) {
   };
 }
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1775,7 +1836,7 @@ function buildURL(url, params, options) {
   return url;
 }
 
-},{"../helpers/AxiosURLSearchParams.js":20,"../utils.js":43}],24:[function(require,module,exports){
+},{"../helpers/AxiosURLSearchParams.js":21,"../utils.js":44}],25:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1794,7 +1855,7 @@ function combineURLs(baseURL, relativeURL) {
   return relativeURL ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '') : baseURL;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1846,7 +1907,7 @@ function nonStandardBrowserEnv() {
 }();
 exports.default = _default;
 
-},{"../platform/index.js":42,"./../utils.js":43}],26:[function(require,module,exports){
+},{"../platform/index.js":43,"./../utils.js":44}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1934,7 +1995,7 @@ function formDataToJSON(formData) {
 var _default = formDataToJSON;
 exports.default = _default;
 
-},{"../utils.js":43}],27:[function(require,module,exports){
+},{"../utils.js":44}],28:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1955,7 +2016,7 @@ function isAbsoluteURL(url) {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1975,7 +2036,7 @@ function isAxiosError(payload) {
   return _utils.default.isObject(payload) && payload.isAxiosError === true;
 }
 
-},{"./../utils.js":43}],29:[function(require,module,exports){
+},{"./../utils.js":44}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2041,7 +2102,7 @@ function nonStandardBrowserEnv() {
 }();
 exports.default = _default;
 
-},{"../platform/index.js":42,"./../utils.js":43}],30:[function(require,module,exports){
+},{"../platform/index.js":43,"./../utils.js":44}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2052,7 +2113,7 @@ exports.default = void 0;
 var _default = null;
 exports.default = _default;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2105,7 +2166,7 @@ var _default = rawHeaders => {
 };
 exports.default = _default;
 
-},{"./../utils.js":43}],32:[function(require,module,exports){
+},{"./../utils.js":44}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2117,7 +2178,7 @@ function parseProtocol(url) {
   return match && match[1] || '';
 }
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2166,7 +2227,7 @@ function speedometer(samplesCount, min) {
 var _default = speedometer;
 exports.default = _default;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2200,7 +2261,7 @@ function spread(callback) {
   };
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict';
 
@@ -2397,7 +2458,7 @@ var _default = toFormData;
 exports.default = _default;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"../core/AxiosError.js":9,"../platform/node/classes/FormData.js":30,"../utils.js":43,"buffer":45}],36:[function(require,module,exports){
+},{"../core/AxiosError.js":10,"../platform/node/classes/FormData.js":31,"../utils.js":44,"buffer":46}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2420,7 +2481,7 @@ function toURLEncodedForm(data, options) {
   }, options));
 }
 
-},{"../platform/index.js":42,"../utils.js":43,"./toFormData.js":35}],37:[function(require,module,exports){
+},{"../platform/index.js":43,"../utils.js":44,"./toFormData.js":36}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2506,7 +2567,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"../core/AxiosError.js":9,"../env/data.js":19}],38:[function(require,module,exports){
+},{"../core/AxiosError.js":10,"../env/data.js":20}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2516,7 +2577,7 @@ exports.default = void 0;
 var _default = typeof Blob !== 'undefined' ? Blob : null;
 exports.default = _default;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2526,7 +2587,7 @@ exports.default = void 0;
 var _default = typeof FormData !== 'undefined' ? FormData : null;
 exports.default = _default;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2538,7 +2599,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _default = typeof URLSearchParams !== 'undefined' ? URLSearchParams : _AxiosURLSearchParams.default;
 exports.default = _default;
 
-},{"../../../helpers/AxiosURLSearchParams.js":20}],41:[function(require,module,exports){
+},{"../../../helpers/AxiosURLSearchParams.js":21}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2601,7 +2662,7 @@ var _default = {
 };
 exports.default = _default;
 
-},{"./classes/Blob.js":38,"./classes/FormData.js":39,"./classes/URLSearchParams.js":40}],42:[function(require,module,exports){
+},{"./classes/Blob.js":39,"./classes/FormData.js":40,"./classes/URLSearchParams.js":41}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2616,7 +2677,7 @@ Object.defineProperty(exports, "default", {
 var _index = _interopRequireDefault(require("./node/index.js"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./node/index.js":41}],43:[function(require,module,exports){
+},{"./node/index.js":42}],44:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -3297,7 +3358,7 @@ var _default = {
 exports.default = _default;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./helpers/bind.js":22}],44:[function(require,module,exports){
+},{"./helpers/bind.js":23}],45:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -3449,7 +3510,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -5230,7 +5291,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":44,"buffer":45,"ieee754":46}],46:[function(require,module,exports){
+},{"base64-js":45,"buffer":46,"ieee754":47}],47:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -5317,65 +5378,4 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],47:[function(require,module,exports){
-"use strict";
-
-var _axios = _interopRequireDefault(require("axios"));
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-const NUM_ARTICLES = 3;
-async function getData(uri) {
-  let res = await _axios.default.get('http://127.0.0.1:3000/data', {
-    data: {
-      uri: uri
-    }
-  });
-  return res.data;
-}
-async function checkHadLayoffs(companyName) {
-  const data = await getData();
-  for (const element of data) {
-    if (element.Company == companyName) {
-      return element;
-    }
-  }
-  return null;
-}
-async function getCompanyFromCrunchbase(companyName) {
-  let res = await _axios.default.post('http://127.0.0.1:3000/check-crunchbase', {
-    data: {
-      companyName: companyName
-    }
-  });
-  return res.data;
-}
-async function getArticles(companyName) {
-  let res = await _axios.default.post('http://127.0.0.1:3000/articles', {
-    data: {
-      companyName: companyName
-    }
-  });
-  return res.data;
-}
-chrome.tabs.query({
-  active: true,
-  lastFocusedWindow: true
-}, async tabs => {
-  let companyName = tabs[0].title.split(' | ')[0].split(':')[0].split(') ')[1];
-  let companyDetails = await getCompanyFromCrunchbase(companyName);
-  document.getElementById("companyName").innerHTML = companyName;
-  document.getElementById("description").innerHTML = companyDetails.cards.fields.short_description;
-  checkHadLayoffs(companyName).then(res => {
-    if (res) {
-      document.getElementById("date").innerHTML = res.Date;
-      document.getElementById("location").innerHTML = res.Location;
-      document.getElementById("num_laid_off").innerHTML = res.NumberLaidOff;
-    }
-  });
-  getArticles(companyName).then(res => {
-    for (let i = 0; i < NUM_ARTICLES; i++) {
-      document.getElementById(`article${i}`).innerHTML = res[i].description;
-    }
-  });
-});
-
-},{"axios":1}]},{},[47]);
+},{}]},{},[1]);
